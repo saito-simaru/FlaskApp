@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>Flaskの基本</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマホ用ページ</title>
+
+    <!-- 外部CSSの読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>こんにちは、Flask！</h1>
+    <img src="{{ url_for('static', filename='images/sea.png') }}" alt="画像">
+    <div class="text">これはスマホ用の表示テストです。</div>
 </body>
 </html>
