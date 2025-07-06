@@ -9,7 +9,7 @@ def update_loop():
         d.text((10, 10), f"Now: {current_time}", fill='white')
         img.save('static/images/generated_image.jpg')
         print("画像更新:", current_time)
-        time.sleep(15)  # 5秒おきに画像更新
+        time.sleep(10)  # 5秒おきに画像更新
 
 if __name__ == '__main__':
     update_loop()

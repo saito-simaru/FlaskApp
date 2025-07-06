@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template
 import os
 
 app = Flask(__name__)
@@ -12,6 +12,15 @@ def index():
     print("image_path:", image_path)
     
     return render_template('index.html', image_path=image_path)
+
+#Javascriptから叩くと画像ファイルの更新日時を返す
+@app.route('/image_status')
+def image_status():
+    image_path = 'static/images/generated_image.jpg'
+    if os.path.exists(image_path):
+        timestamp = os.path.getmtime(image_path)
+        return jsonify({'last_updated': timestamp})
+    return jsonify({'error': 'Image not found'}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

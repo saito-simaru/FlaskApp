@@ -11,32 +11,49 @@
   <h1>生成された画像</h1>
   <img id="generated" src="{{ url_for('static', filename=image_path) }}" alt="画像">
 
-  <div class="text">PCで画像が更新されると、スマホ側も自動更新されます。</div>
+  <div id="infoText" class="text">初期メッセージ</div>
   <button id="actionButton" class="hidden">画像確認</button>
 
-    <script>
-      const img = document.getElementById('generated');
-      const button = document.getElementById('actionButton');
+<script>
+  const img = document.getElementById('generated');
+  const button = document.getElementById('actionButton');
+  const infoText = document.getElementById('infoText');
 
-      function refreshImage() {
-        const timestamp = new Date().getTime();
-        img.src = "{{ url_for('static', filename=image_path) }}?t=" + timestamp;
+  let lastImageTime = 0;
 
-        // ボタンを再表示・有効化
-        button.classList.remove("hidden");
-        button.disabled = false;
+  async function checkImageUpdate() {
+    try {
+      const res = await fetch('/image_status');
+      const data = await res.json();
+
+      if (data.last_updated > lastImageTime) {
+        // 更新されていたら画像を再読み込み
+        refreshImage();
+        lastImageTime = data.last_updated;
       }
+    } catch (err) {
+      console.error('エラー:', err);
+    }
+  }
 
-      // ボタンがクリックされたら非表示
-      button.addEventListener('click', () => {
-        alert("ボタンがクリックされた");
-        button.disabled = true;     // 無効にする
-        button.classList.add("hidden"); // ← 完全非表示にしたいならこちら
-      });
+  function refreshImage() {
+    const timestamp = new Date().getTime();
+    img.src = `/static/images/generated_image.jpg?t=${timestamp}`;
 
+    button.classList.remove("hidden");
+    button.disabled = false;
 
-      // 15秒ごとに実行
-      setInterval(refreshImage, 15000);
-    </script>
+    infoText.textContent = "新しい画像が生成されました！";
+  }
+
+  button.addEventListener('click', () => {
+    alert("ボタンがクリックされた");
+    button.disabled = true;
+    button.classList.add("hidden");
+  });
+
+  // 3秒ごとに更新チェック
+  setInterval(checkImageUpdate, 3000);
+</script>
 </body>
 </html>
