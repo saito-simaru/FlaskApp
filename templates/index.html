@@ -5,22 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>リアルタイム画像表示</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script>
-    // 画像の再読み込み用スクリプト（5秒ごとに更新）
-    function refreshImage() {
-      const img = document.getElementById('generated');
-      const timestamp = new Date().getTime(); // キャッシュ防止のため
-      img.src = "{{ url_for('static', filename=image_path) }}?t=" + timestamp;
-    }
 
-    // 5秒ごとに実行
-    setInterval(refreshImage, 15);
-  </script>
 </head>
 <body>
   <h1>生成された画像</h1>
   <img id="generated" src="{{ url_for('static', filename=image_path) }}" alt="画像">
 
   <div class="text">PCで画像が更新されると、スマホ側も自動更新されます。</div>
+  <button id="actionButton" class="hidden">画像確認</button>
+
+    <script>
+      const img = document.getElementById('generated');
+      const button = document.getElementById('actionButton');
+
+      function refreshImage() {
+        const timestamp = new Date().getTime();
+        img.src = "{{ url_for('static', filename=image_path) }}?t=" + timestamp;
+
+        // ボタンを再表示・有効化
+        button.classList.remove("hidden");
+        button.disabled = false;
+      }
+
+      // ボタンがクリックされたら非表示
+      button.addEventListener('click', () => {
+        alert("ボタンがクリックされた");
+        button.disabled = true;     // 無効にする
+        button.classList.add("hidden"); // ← 完全非表示にしたいならこちら
+      });
+
+
+      // 15秒ごとに実行
+      setInterval(refreshImage, 15000);
+    </script>
 </body>
 </html>
