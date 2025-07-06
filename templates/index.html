@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>スマホ用ページ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リアルタイム画像表示</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    // 画像の再読み込み用スクリプト（5秒ごとに更新）
+    function refreshImage() {
+      const img = document.getElementById('generated');
+      const timestamp = new Date().getTime(); // キャッシュ防止のため
+      img.src = "{{ url_for('static', filename=image_path) }}?t=" + timestamp;
+    }
 
-    <!-- 外部CSSの読み込み -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    // 5秒ごとに実行
+    setInterval(refreshImage, 15);
+  </script>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='images/sea.png') }}" alt="画像">
-    <div class="text">これはスマホ用の表示テストです。</div>
+  <h1>生成された画像</h1>
+  <img id="generated" src="{{ url_for('static', filename=image_path) }}" alt="画像">
+
+  <div class="text">PCで画像が更新されると、スマホ側も自動更新されます。</div>
 </body>
 </html>
