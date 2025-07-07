@@ -46,11 +46,18 @@
     infoText.textContent = "新しい画像が生成されました！";
   }
 
-  button.addEventListener('click', () => {
-    alert("ボタンがクリックされた");
-    button.disabled = true;
-    button.classList.add("hidden");
+button.addEventListener('click', async () => {
+  alert("ボタンがクリックされました");
+
+  // ボタンを非表示＋無効化
+  button.disabled = true;
+  button.classList.add("hidden");
+
+  // Flaskに通知（画像生成スクリプトに再開を伝える）
+  await fetch('/button_clicked', {
+    method: 'POST'
   });
+});
 
   // 3秒ごとに更新チェック
   setInterval(checkImageUpdate, 3000);
