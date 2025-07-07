@@ -9,7 +9,7 @@
 </head>
 <body>
   <h1>生成された画像</h1>
-  <img id="generated" src="{{ url_for('static', filename=image_path) }}" alt="画像">
+  <img id="generated" src="static/images/no.jpg" alt="画像">
 
   <div id="infoText" class="text">初期メッセージ</div>
   <button id="actionButton" class="hidden">画像確認</button>
@@ -20,6 +20,7 @@
   const infoText = document.getElementById('infoText');
 
   let lastImageTime = 0;
+  let shouldCheckSystemStatus = false; // ← 状態フラグ！
 
   async function checkImageUpdate() {
     try {
@@ -27,40 +28,68 @@
       const data = await res.json();
 
       if (data.last_updated > lastImageTime) {
-        // 更新されていたら画像を再読み込み
         refreshImage();
         lastImageTime = data.last_updated;
       }
     } catch (err) {
-      console.error('エラー:', err);
+      console.error('画像チェックエラー:', err);
     }
   }
 
-  function refreshImage() {
+  async function refreshImage() {
+    echo("イメージリフレッシュ開始");
+    await fetch('/create_flag', { method: 'POST' });
+    echo("フェッチ終了");
     const timestamp = new Date().getTime();
     img.src = `/static/images/generated_image.jpg?t=${timestamp}`;
-
     button.classList.remove("hidden");
     button.disabled = false;
-
     infoText.textContent = "新しい画像が生成されました！";
+
+    // 🔴 状態フラグOFF → checkSystemStatus を一時停止
+    shouldCheckSystemStatus = false;
   }
 
-button.addEventListener('click', async () => {
-  alert("ボタンがクリックされました");
+  async function checkSystemStatus() {
+    if (!shouldCheckSystemStatus) return; // 🔴 呼び出しブロック！
 
-  // ボタンを非表示＋無効化
-  button.disabled = true;
-  button.classList.add("hidden");
+    try {
+      const res = await fetch('/system_status');
+      const data = await res.json();
 
-  // Flaskに通知（画像生成スクリプトに再開を伝える）
-  await fetch('/button_clicked', {
-    method: 'POST'
+      if (data.status === true) {
+        img.src = '/static/images/yes.jpg';
+        infoText.textContent = "外部ステータス：TRUE（待機中）";
+        button.classList.add("hidden");
+      } else {
+        img.src = '/static/images/no.jpg';
+        infoText.textContent = "外部ステータス：FALSE（待機中）";
+        button.classList.add("hidden");
+      }
+    } catch (err) {
+      console.error('ステータス読み込みエラー:', err);
+    }
+  }
+
+  button.addEventListener('click', async () => {
+    alert("ボタンがクリックされました");
+
+    button.disabled = true;
+    button.classList.add("hidden");
+
+    // 🔵 状態フラグON → checkSystemStatus を再開
+    shouldCheckSystemStatus = true;
+
+    await fetch('/button_clicked', { method: 'POST' });
   });
-});
 
-  // 3秒ごとに更新チェック
-  setInterval(checkImageUpdate, 3000);
+  // 3秒ごとに定期チェック（状態フラグによって分岐）
+  setInterval(() => {
+    checkImageUpdate();
+    checkSystemStatus(); // フラグによって無効化・再開
+  }, 3000);
 </script>
+
+
 </body>
 </html>

@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, render_template
 import os
+import json
 
 app = Flask(__name__)
 WAIT_FLAG_PATH = 'state/wait_flag.txt'
+EXTERNAL_JSON_PATH = 'state/external_status.json'
 
+#最初に呼ばれる関数
 @app.route('/')
 def index():
     # 画像ファイル名を設定（必要に応じて変更）
@@ -14,12 +17,29 @@ def index():
     
     return render_template('index.html', image_path=image_path)
 
+#画像生成を開始させる
 @app.route('/button_clicked', methods=['POST'])
 def button_clicked():
     if os.path.exists(WAIT_FLAG_PATH):
-        os.remove(WAIT_FLAG_PATH)  # フラグ削除で画像生成を再開
+        os.remove(WAIT_FLAG_PATH)
         return jsonify({'status': 'resumed'})
     return jsonify({'status': 'already_running'})
+
+
+@app.route('/create_flag', methods=['POST'])
+def create_flag():
+    with open(WAIT_FLAG_PATH, 'w') as f:
+        f.write('wait')
+    return jsonify({'status': 'flag_created'})
+
+@app.route('/system_status')
+def system_status():
+    EXTERNAL_JSON_PATH = 'state/external_status.json'
+    if os.path.exists(EXTERNAL_JSON_PATH):
+        with open(EXTERNAL_JSON_PATH, 'r') as f:
+            status = json.load(f)
+        return jsonify(status)
+    return jsonify({'status': False})  # デフォルトはFalse
 
 #Javascriptから叩くと画像ファイルの更新日時を返す
 @app.route('/image_status')
