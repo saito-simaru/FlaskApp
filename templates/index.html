@@ -8,11 +8,11 @@
 
 </head>
 <body>
-  <h1>生成された画像</h1>
+  <h1>Appdemo</h1>
   <img id="generated" src="static/images/no.jpg" alt="画像">
 
-  <div id="infoText" class="text">初期メッセージ</div>
-  <button id="actionButton" class="hidden">画像確認</button>
+  <div id="infoText" class="text"></div>
+  <button id="actionButton" class="hidden">continue</button>
 
 <script>
   const img = document.getElementById('generated');
@@ -45,7 +45,7 @@
     img.src = `/static/images/generated_image.jpg?t=${timestamp}`;
     button.classList.remove("hidden");
     button.disabled = false;
-    infoText.textContent = "新しい画像が生成されました！";
+    infoText.textContent = "Get Tsukumo image!!";
     console.log("画像を更新");
 
     // 🔴 状態フラグOFF → checkSystemStatus を一時停止
@@ -62,12 +62,12 @@
 
       if (data.status === true) {
         img.src = '/static/images/yes.jpg';
-        infoText.textContent = "外部ステータス：TRUE（待機中）";
+        infoText.textContent = "Conecting SOL GLASSES!";
         button.classList.add("hidden");
         console.log("〇画像を表示");
       } else {
         img.src = '/static/images/no.jpg';
-        infoText.textContent = "外部ステータス：FALSE（待機中）";
+        infoText.textContent = "Missing SOL GLASSES・・・";
         button.classList.add("hidden");
       }
       console.log("〇画像を表示end");
