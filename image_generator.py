@@ -1,15 +1,31 @@
 # image_generator.py
+import json
+import random
 import os
 import time
 from PIL import Image, ImageDraw
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WAIT_FLAG_PATH = os.path.join(BASE_DIR, 'state', 'wait_flag.txt')
+STATUS_FILE_PATH = os.path.join(BASE_DIR, 'state', 'external_status.json')
 
 def update_loop():
     while True:
+
         if os.path.exists(WAIT_FLAG_PATH):
             print("画像生成停止中：ボタンが押されるのを待っています")
+                    # ランダムにTrue or Falseを生成
+            status_value = random.choice([True, False])
+
+            # 辞書にして保存
+            status_data = {"status": status_value}
+
+            # JSONファイルに書き込む
+            with open(STATUS_FILE_PATH, 'w') as f:
+                json.dump(status_data, f)
+
+            print(f"status: {status_value}")
+        
             time.sleep(1)
             continue
 
