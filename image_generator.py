@@ -14,10 +14,10 @@ def update_loop():
             continue
 
         # 画像生成
-        img = Image.new('RGB', (400, 300), color='black')
+        img = Image.new('RGB', (400, 300), color='white')
         current_time = time.strftime("%H:%M:%S")
         d = ImageDraw.Draw(img)
-        d.text((10, 10), f"Now: {current_time}", fill='white')
+        d.text((10, 10), f"Now: {current_time}", fill='black')
         img.save(os.path.join(BASE_DIR, 'static/images/generated_image.jpg'))
         print("画像更新:", current_time)
 

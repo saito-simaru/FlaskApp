@@ -5,35 +5,41 @@ import json
 app = Flask(__name__)
 WAIT_FLAG_PATH = 'state/wait_flag.txt'
 EXTERNAL_JSON_PATH = 'state/external_status.json'
+IMAGE_PATH = 'static/images/generated_image.jpg'
 
 #最初に呼ばれる関数
 @app.route('/')
 def index():
-    # 画像ファイル名を設定（必要に応じて変更）
-    image_filename = 'generated_image.jpg'
-    image_path = os.path.join('images', image_filename).replace('\\', '/')
+    # # 画像ファイル名を設定（必要に応じて変更）
+    # image_filename = 'generated_image.jpg'
+    # image_path = os.path.join('images', image_filename).replace('\\', '/')
     
-    print("image_path:", image_path)
-    
-    return render_template('index.html', image_path=image_path)
+    # print("image_path:", image_path)
+    # return render_template('index.html', image_path=image_path)
+
+    return render_template('index.html')
 
 #画像生成を開始させる
 @app.route('/button_clicked', methods=['POST'])
 def button_clicked():
+    print("buttonが押された")
     if os.path.exists(WAIT_FLAG_PATH):
         os.remove(WAIT_FLAG_PATH)
         return jsonify({'status': 'resumed'})
     return jsonify({'status': 'already_running'})
 
-
+#画像生成を止めるふぃあるを作成
 @app.route('/create_flag', methods=['POST'])
 def create_flag():
+    print("画像生成を止める")
     with open(WAIT_FLAG_PATH, 'w') as f:
         f.write('wait')
     return jsonify({'status': 'flag_created'})
 
+#〇✖をjsonfileを読み込んで判定
 @app.route('/system_status')
 def system_status():
+    print("jsonfileを読み取る")
     EXTERNAL_JSON_PATH = 'state/external_status.json'
     if os.path.exists(EXTERNAL_JSON_PATH):
         with open(EXTERNAL_JSON_PATH, 'r') as f:
@@ -44,9 +50,10 @@ def system_status():
 #Javascriptから叩くと画像ファイルの更新日時を返す
 @app.route('/image_status')
 def image_status():
-    image_path = 'static/images/generated_image.jpg'
-    if os.path.exists(image_path):
-        timestamp = os.path.getmtime(image_path)
+    print("画像の更新時間をreturn")
+    IMAGE_PATH = 'static/images/generated_image.jpg'
+    if os.path.exists(IMAGE_PATH):
+        timestamp = os.path.getmtime(IMAGE_PATH)
         return jsonify({'last_updated': timestamp})
     return jsonify({'error': 'Image not found'}), 404
 

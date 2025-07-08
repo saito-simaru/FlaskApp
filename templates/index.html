@@ -24,8 +24,11 @@
 
   async function checkImageUpdate() {
     try {
+      
       const res = await fetch('/image_status');
       const data = await res.json();
+      console.log("更新時間" + data.last_updated + " : 最終画像の更新時間" + lastImageTime);
+
 
       if (data.last_updated > lastImageTime) {
         refreshImage();
@@ -37,22 +40,22 @@
   }
 
   async function refreshImage() {
-    echo("イメージリフレッシュ開始");
     await fetch('/create_flag', { method: 'POST' });
-    echo("フェッチ終了");
     const timestamp = new Date().getTime();
     img.src = `/static/images/generated_image.jpg?t=${timestamp}`;
     button.classList.remove("hidden");
     button.disabled = false;
     infoText.textContent = "新しい画像が生成されました！";
+    console.log("画像を更新");
 
     // 🔴 状態フラグOFF → checkSystemStatus を一時停止
     shouldCheckSystemStatus = false;
   }
 
   async function checkSystemStatus() {
+    console.log("システムチェック前");
     if (!shouldCheckSystemStatus) return; // 🔴 呼び出しブロック！
-
+    console.log("システムチェック通過");
     try {
       const res = await fetch('/system_status');
       const data = await res.json();
@@ -61,18 +64,20 @@
         img.src = '/static/images/yes.jpg';
         infoText.textContent = "外部ステータス：TRUE（待機中）";
         button.classList.add("hidden");
+        console.log("〇画像を表示");
       } else {
         img.src = '/static/images/no.jpg';
         infoText.textContent = "外部ステータス：FALSE（待機中）";
         button.classList.add("hidden");
       }
+      console.log("〇画像を表示end");
     } catch (err) {
       console.error('ステータス読み込みエラー:', err);
     }
   }
 
   button.addEventListener('click', async () => {
-    alert("ボタンがクリックされました");
+    console.log("ボタンがクリックされました");
 
     button.disabled = true;
     button.classList.add("hidden");
@@ -87,7 +92,10 @@
   setInterval(() => {
     checkImageUpdate();
     checkSystemStatus(); // フラグによって無効化・再開
-  }, 3000);
+  }, 1000);
+  //   setInterval(() => {
+  //   checkSystemStatus(); // フラグによって無効化・再開
+  // }, 3000);
 </script>
 
 
