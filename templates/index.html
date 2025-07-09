@@ -103,14 +103,12 @@
     shouldCheckSystemStatus = true;
   });
 
-  // 3秒ごとに定期チェック（状態フラグによって分岐）
+  // 0.5秒ごとに定期チェック（状態フラグによって分岐）
   setInterval(() => {
     checkImageUpdate();
      // フラグによって無効化・再開
-  }, 1000);
-  //   setInterval(() => {
-  //   checkSystemStatus(); // フラグによって無効化・再開
-  // }, 3000);
+  }, 500);
+
 </script>
 
 

@@ -19,15 +19,6 @@ def index():
 
     return render_template('index.html')
 
-# #画像生成
-# @app.route('/button_clicked', methods=['POST'])
-# def button_clicked():
-#     print("buttonが押された")
-#     if os.path.exists(WAIT_FLAG_PATH):
-#         os.remove(WAIT_FLAG_PATH)
-#         return jsonify({'status': 'resumed'})
-#     return jsonify({'status': 'already_running'})
-
 #画像生成を開始
 @app.route('/stopcreate')
 def notcreate_flag():
@@ -72,6 +63,6 @@ def image_status():
     return jsonify({'error': 'Image not found'}), 404
 
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
     #デバッグモードにしておく
-    app.run(debug=True)
+    #app.run(debug=True)
