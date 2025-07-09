@@ -19,22 +19,36 @@ def index():
 
     return render_template('index.html')
 
-#画像生成を開始させる
-@app.route('/button_clicked', methods=['POST'])
-def button_clicked():
-    print("buttonが押された")
-    if os.path.exists(WAIT_FLAG_PATH):
-        os.remove(WAIT_FLAG_PATH)
-        return jsonify({'status': 'resumed'})
-    return jsonify({'status': 'already_running'})
+# #画像生成
+# @app.route('/button_clicked', methods=['POST'])
+# def button_clicked():
+#     print("buttonが押された")
+#     if os.path.exists(WAIT_FLAG_PATH):
+#         os.remove(WAIT_FLAG_PATH)
+#         return jsonify({'status': 'resumed'})
+#     return jsonify({'status': 'already_running'})
 
-#画像生成を止めるふぃあるを作成
-@app.route('/create_flag', methods=['POST'])
-def create_flag():
-    print("画像生成を止める")
-    with open(WAIT_FLAG_PATH, 'w') as f:
-        f.write('wait')
-    return jsonify({'status': 'flag_created'})
+#画像生成を開始
+@app.route('/stopcreate')
+def notcreate_flag():
+    # JSONファイルに書き込む
+    status_data = {"iscreating": False}
+    with open(EXTERNAL_JSON_PATH, 'w') as f:
+        json.dump(status_data, f)
+
+    print(f"画像生成フラグ{status_data}")
+    return jsonify({"message": "画像生成を停止"})
+
+#画像生成を停止
+@app.route('/iscreate')
+def iscreate_flag():
+    # JSONファイルに書き込む
+    status_data = {"iscreating": True}
+    with open(EXTERNAL_JSON_PATH, 'w') as f:
+        json.dump(status_data, f)
+
+    print(f"画像生成フラグ{status_data}")
+    return jsonify({"message": "画像生成を再開"})
 
 #〇✖をjsonfileを読み込んで判定
 @app.route('/system_status')
@@ -58,6 +72,6 @@ def image_status():
     return jsonify({'error': 'Image not found'}), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=5000)
     #デバッグモードにしておく
-    # app.run(debug=True)
+    app.run(debug=True)

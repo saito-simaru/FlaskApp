@@ -20,7 +20,7 @@
   const infoText = document.getElementById('infoText');
 
   let lastImageTime = 0;
-  let shouldCheckSystemStatus = false; // ← 状態フラグ！
+  //let shouldCheckSystemStatus = false; // ← 状態フラグ！
 
   async function checkImageUpdate() {
     try {
@@ -31,8 +31,13 @@
 
 
       if (data.last_updated > lastImageTime) {
-        refreshImage();
+        await refreshImage();
         lastImageTime = data.last_updated;
+        checkSystemStatus();
+      }
+      else
+      {
+        checkSystemStatus();
       }
     } catch (err) {
       console.error('画像チェックエラー:', err);
@@ -40,7 +45,8 @@
   }
 
   async function refreshImage() {
-    await fetch('/create_flag', { method: 'POST' });
+    //await fetch('/create_flag', { method: 'POST' });
+    console.log('要素は hidden クラスを持っています');
     const timestamp = new Date().getTime();
     img.src = `/static/images/generated_image.jpg?t=${timestamp}`;
     button.classList.remove("hidden");
@@ -49,31 +55,42 @@
     console.log("画像を更新");
 
     // 🔴 状態フラグOFF → checkSystemStatus を一時停止
-    shouldCheckSystemStatus = false;
+    //shouldCheckSystemStatus = false;
   }
 
-  async function checkSystemStatus() {
-    console.log("システムチェック前");
-    if (!shouldCheckSystemStatus) return; // 🔴 呼び出しブロック！
-    console.log("システムチェック通過");
-    try {
-      const res = await fetch('/system_status');
-      const data = await res.json();
+  async function checkSystemStatus() {  
+    if (!button.classList.contains('hidden')) {
+      // ボタンが表示されている場合画像生成を止める
+      await fetch('/stopcreate');
+      console.log('ボタン非表示中');
+      
+    }else{
+      // ボタンが表示されていない場合画像生成を再開
+      await fetch('/iscreate');
+      console.log('ボタン表示中');
 
-      if (data.status === true) {
-        img.src = '/static/images/yes.jpg';
-        infoText.textContent = "Conecting SOL GLASSES!";
-        button.classList.add("hidden");
-        console.log("〇画像を表示");
-      } else {
-        img.src = '/static/images/no.jpg';
-        infoText.textContent = "Missing SOL GLASSES・・・";
-        button.classList.add("hidden");
+
+      if (!shouldCheckSystemStatus) return; // 🔴 呼び出しブロック！
+      try {
+        const res = await fetch('/system_status');
+        const data = await res.json();
+
+        if (data.status === true) {
+          img.src = '/static/images/yes.jpg';
+          infoText.textContent = "Conecting SOL GLASSES!";
+          button.classList.add("hidden");
+          console.log("〇画像を表示");
+        } else {
+          img.src = '/static/images/no.jpg';
+          infoText.textContent = "Missing SOL GLASSES・・・";
+          button.classList.add("hidden");
+        }
+        console.log("〇画像を表示end");
+      } catch (err) {
+        console.error('ステータス読み込みエラー:', err);
       }
-      console.log("〇画像を表示end");
-    } catch (err) {
-      console.error('ステータス読み込みエラー:', err);
     }
+
   }
 
   button.addEventListener('click', async () => {
@@ -84,14 +101,12 @@
 
     // 🔵 状態フラグON → checkSystemStatus を再開
     shouldCheckSystemStatus = true;
-
-    await fetch('/button_clicked', { method: 'POST' });
   });
 
   // 3秒ごとに定期チェック（状態フラグによって分岐）
   setInterval(() => {
     checkImageUpdate();
-    checkSystemStatus(); // フラグによって無効化・再開
+     // フラグによって無効化・再開
   }, 1000);
   //   setInterval(() => {
   //   checkSystemStatus(); // フラグによって無効化・再開

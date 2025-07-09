@@ -11,8 +11,12 @@ STATUS_FILE_PATH = os.path.join(BASE_DIR, 'state', 'external_status.json')
 
 def update_loop():
     while True:
-
-        if os.path.exists(WAIT_FLAG_PATH):
+        
+        with open(STATUS_FILE_PATH, 'r') as f:
+            config = json.load(f)
+        
+        #生成フラグがfalseなら
+        if not config.get("iscreating"):
             print("画像生成停止中：ボタンが押されるのを待っています")
                     # ランダムにTrue or Falseを生成
             status_value = random.choice([True, False])
