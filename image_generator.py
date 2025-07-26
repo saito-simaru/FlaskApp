@@ -11,27 +11,6 @@ STATUS_FILE_PATH = os.path.join(BASE_DIR, 'state', 'external_status.json')
 
 def update_loop():
     while True:
-        
-        with open(STATUS_FILE_PATH, 'r') as f:
-            config = json.load(f)
-        
-        #生成フラグがfalseなら
-        if not config.get("iscreating"):
-            print("画像生成停止中：ボタンが押されるのを待っています")
-                    # ランダムにTrue or Falseを生成
-            status_value = random.choice([True, False])
-
-            # 辞書にして保存
-            status_data = {"status": status_value}
-
-            # JSONファイルに書き込む
-            with open(STATUS_FILE_PATH, 'w') as f:
-                json.dump(status_data, f)
-
-            print(f"status: {status_value}")
-        
-            time.sleep(1)
-            continue
 
         # 画像生成
         img = Image.new('RGB', (400, 300), color='white')
